@@ -8,7 +8,7 @@ async function up(knex){
         table.date('birth_date').notNullable();
         table.string('phone').notNullable();
         table.string('photo').notNullable();
-        table.date('status').notNullable();
+        table.string('status').notNullable();
     })
 }
 

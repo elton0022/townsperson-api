@@ -1,4 +1,4 @@
-import knex from 'knex';
+const knex = require('knex');
 require('dotenv/config');
 
 const connection = knex({
@@ -6,4 +6,4 @@ const connection = knex({
     connection: process.env.DB_URL
 });
 
-export default connection;
+module.exports = connection;
