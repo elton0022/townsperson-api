@@ -7,10 +7,45 @@ const knex = require('../database/connect');
 const { cpf } = require('cpf-cnpj-validator');
 
 module.exports = {
-    async getAllTownsperson(req, res) {
-        const townsperson = await knex('townsperson').select('*');
+    async findOneTownsperson(req, res) {
+        let townsperson = null;
+        let address = null;
 
-        return res.json(townsperson);
+        try {
+            const { id } = req.params;
+
+            townsperson = await knex('townspersons')
+            .select('*')
+            .where({id})
+            .first();
+
+            address = await knex('addresses')
+            .select('*')
+            .where({townsperson_id: id})
+            .first();
+        } catch (error) {
+            return res.send(error.message)
+        }
+        return res.json({...townsperson, address});
+    },
+    async getAllTownsperson(req, res) {
+        let townspersons = [];
+        try {
+            townspersons = await knex('townspersons')
+            .leftJoin('addresses','townspersons.id', 'addresses.townsperson_id')
+            .select(
+                'townspersons.id as id',
+                'townspersons.name',
+                'townspersons.phone',
+                'townspersons.email',
+                'addresses.id as addressId',
+                'addresses.city',
+                'addresses.uf',
+                ) 
+        } catch (error) {
+            return res.send(error.message)
+        }
+        return res.json(townspersons);
     },
     async addTownsperson(req, res) {
         try {
@@ -25,7 +60,7 @@ module.exports = {
 
             fs.unlinkSync(req.file.path);
 
-            const body = req.body;
+            const { address, ...body } = req.body;
 
             if (!validatorEmail.validate(body.email) || !cpf.isValid(body.cpf)) {
                 return res.send('Email ou CPF inválidos');
@@ -35,7 +70,17 @@ module.exports = {
                 return res.send('Data de nascimento inválida')
             }
 
-            await knex('townsperson').insert({ photo, ...body });
+            const [id] = await knex('townspersons')
+                .insert({ photo, ...body })
+                .returning('id');
+
+            const adressJson = JSON.parse(address);
+
+            await knex('addresses').insert({
+                ...adressJson,
+                townsperson_id: id
+            });
+
         } catch (error) {
             return res.status(400).json(error.message);
         }
@@ -47,7 +92,7 @@ module.exports = {
             const { id } = req.params;
             const { filename: photo } = req.file;
 
-            let townsperson = await knex('townsperson')
+            let townsperson = await knex('townspersons')
                 .select('*')
                 .where({ id })
                 .first();
@@ -65,7 +110,7 @@ module.exports = {
 
                 fs.unlinkSync(req.file.path);
 
-                const body = req.body;
+                const { address, ...body } = req.body;
 
                 if (!validatorEmail.validate(body.email) || !cpf.isValid(body.cpf)) {
                     return res.send('Email ou CPF inválidos');
@@ -74,12 +119,18 @@ module.exports = {
                 if (!validateBirthDate(body.birth_date)) {
                     return res.send('Data de nascimento inválida')
                 }
-                
-                townsperson = await knex('townsperson')
+
+                const addressJson = JSON.parse(address);
+
+                await knex('townspersons')
                     .update({ photo, ...body })
                     .where({ id });
 
-                return res.json(townsperson);
+                await knex('address')
+                    .update(addressJson)
+                    .where({ townsperson_id: id });
+
+                return res.json({ message: 'Atualizado com sucesso!' });
             }
         } catch (error) {
             return res.status(400).json(error.message);

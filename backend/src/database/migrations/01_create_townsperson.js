@@ -1,5 +1,5 @@
 async function up(knex){
-    return knex.schema.createTable('townsperson', table => {
+    return knex.schema.createTable('townspersons', table => {
         table.increments('id').primary();
         table.string('name').notNullable();
         table.string('cpf', 11).notNullable();
@@ -10,12 +10,11 @@ async function up(knex){
         table.string('photo').notNullable();
         table.string('status').notNullable();
         table.unique(['cpf', 'cns', 'phone']);
-        table.timestamps();
     })
 }
 
 async function down(knex){
-   return knex.schema.dropTable('townsperson');
+   return knex.schema.dropTable('townspersons');
 }
 
 module.exports ={ up, down };
