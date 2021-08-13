@@ -8,6 +8,11 @@ async function up(knex){
         table.string('city').notNullable();
         table.string('uf').notNullable();
         table.string('code_IBGE').notNullable();
+        table.integer('townsperson_id')
+            .unsigned()
+            .notNullable()
+            .references('id')
+            .inTable('townsperson');
     })
 }
 

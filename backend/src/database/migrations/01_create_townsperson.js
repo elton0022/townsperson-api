@@ -2,13 +2,15 @@ async function up(knex){
     return knex.schema.createTable('townsperson', table => {
         table.increments('id').primary();
         table.string('name').notNullable();
-        table.integer('cpf').notNullable();
-        table.integer('cns').notNullable();
+        table.string('cpf', 11).notNullable();
+        table.string('cns').notNullable();
         table.string('email').notNullable();
         table.date('birth_date').notNullable();
         table.string('phone').notNullable();
         table.string('photo').notNullable();
         table.string('status').notNullable();
+        table.unique(['cpf', 'cns', 'phone']);
+        table.timestamps();
     })
 }
 

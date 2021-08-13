@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "knex:up": "knex --knexfile knextfile.js migrate:up",
     "knex:down": "knex --knexfile knextfile.js migrate:down",
     "knex:migrate": "knex --knexfile knextfile.js migrate:latest",
     "knex:seed": "knex --knexfile knextfile.js seed:run"
