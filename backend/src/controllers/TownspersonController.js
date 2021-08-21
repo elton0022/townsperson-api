@@ -36,6 +36,7 @@ module.exports = {
             .select(
                 'townspersons.id as id',
                 'townspersons.name',
+                'townspersons.photo',
                 'townspersons.phone',
                 'townspersons.email',
                 'addresses.id as addressId',

@@ -24,6 +24,7 @@
     "sharp": "^0.28.3"
   },
   "devDependencies": {
+    "@mdi/font": "^5.9.55",
     "nodemon": "^2.0.12"
   }
 }
